@@ -1,152 +1,213 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { StyleSheet, css} from 'aphrodite';
-import Header from '../Header/Header';
-import Footer from '../Footer/Footer';
-import Login from '../Login/Login';
-import Notifications from '../Notifications/Notifications';
-import CourseList from '../CourseList/CourseList';
-import BodySectionWithMarginBottom from '../BodySection/BodySectionWithMarginBottom';
-import BodySection from '../BodySection/BodySection';
-import {AppContext, defaultUser } from './AppContext'
-import { connect } from 'react-redux';
-import { displayNotificationDrawer, hideNotificationDrawer } from '../actions/uiActionCreators';
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import Notifications from "../Notifications/Notifications";
+import Header from "../Header/Header";
+import BodySection from "../BodySection/BodySection";
+import BodySectionWithMarginBottom from "../BodySection/BodySectionWithMarginBottom";
+import Login from "../Login/Login";
+import CourseList from "../CourseList/CourseList";
+import Footer from "../Footer/Footer";
+import PropTypes from "prop-types";
+import { getLatestNotification } from "../utils/utils";
+import { StyleSheet, css } from "aphrodite";
+import { user, logOut } from "./AppContext";
+import AppContext from "./AppContext";
+import {
+  displayNotificationDrawer,
+  hideNotificationDrawer,
+} from "../actions/uiActionCreators";
 
+const listCourses = [
+  { id: 1, name: "ES6", credit: 60 },
+  { id: 2, name: "Webpack", credit: 20 },
+  { id: 3, name: "React", credit: 40 },
+];
 
-const styles = StyleSheet.create({
-  AppBody: {
-    fontSize: '1.1rem',
-    paddingLeft: 10,
-    margin: 0,
-    minHeight: 350
-  }
-})
+export const listNotificationsInitialState = [
+  { id: 1, type: "default", value: "New course available" },
+  { id: 2, type: "urgent", value: "New resume available" },
+  { id: 3, type: "urgent", html: { __html: getLatestNotification() } },
+];
 
+document.body.style.margin = 0;
 
-export class App extends React.Component {
-  constructor(props){
-    super(props)
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.handleKeyCombination = this.handleKeyCombination.bind(this);
+    this.logIn = this.logIn.bind(this);
+    this.logOut = this.logOut.bind(this);
+    this.markNotificationAsRead = this.markNotificationAsRead.bind(this);
     this.state = {
-      user: defaultUser,
-      listCourses: [
-        {id: 1, name: 'ES6', credit: 60},
-        {id: 2, name: 'Webpack', credit: 20},
-        {id: 3, name: 'React', credit: 40}
-      ],
-      listNotifications: [
-        {id: 1, type:"default", value: "New course available", html:{__html:null}},
-        {id: 2, type:"urgent", html:{__html:"Object Oriented Programming intro"}},
-        {id: 3, type:"default", value: "Present Javascript project requirements test on Friday"}
-      ]
+      user,
+      logOut: this.logOut,
+      listNotifications: listNotificationsInitialState,
+    };
+  }
+
+  handleKeyCombination(e) {
+    if (e.key === "h" && e.ctrlKey) {
+      alert("Logging you out");
+      this.state.logOut();
     }
   }
 
-  static propTypes = {
-    isLoggedIn: PropTypes.bool,
-    displayDrawer: PropTypes.bool,
-    displayNotificationDrawer: PropTypes.func,
-    hideNotificationDrawer: PropTypes.func
+  logIn(email, password) {
+    this.setState({
+      user: {
+        email,
+        password,
+        isLoggedIn: true,
+      },
+    });
   }
 
-  static defaultProps = {
-      isLoggedIn: false,
-      displayDrawer: false,
-      displayNotificationDrawer: () => {},
-      hideNotificationDrawer: () => {}
+  logOut() {
+    this.setState({ user });
   }
 
-  logOut = () => {
-    this.setState({user: defaultUser})
-  }
-
-  logIn = (email, password) => {
-    const currentUser = {email:email, password:password, isLoggedIn: true}
-    this.setState({user: currentUser })
-  }
-
-  markNotificationAsRead = (id) => {
-    const Notifications = this.state.listNotifications
-    this.setState({listNotifications: Notifications.filter((notif)=> id != notif.id )})
+  markNotificationAsRead(id) {
+    this.setState({
+      listNotifications: this.state.listNotifications.filter((notification) => {
+        return notification.id !== id;
+      }),
+    });
   }
 
   componentDidMount() {
-    this.alert()
-  }
-
-  alert() {
-    document.addEventListener('keydown', (e) => {
-      if (e.ctrlKey && e.code =='KeyH'){
-        e.preventDefault()
-        this.props.logOut()
-        alert('Logging you out')
-      }
-    })
+    document.addEventListener("keydown", this.handleKeyCombination);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('keydown', alert)
+    document.removeEventListener("keydown", this.handleKeyCombination);
   }
 
-  render () {
-    const currentUser = this.state.user
-    const logOut = this.logOut
-    const displayDrawerState = this.state.displayDrawer;
-    const showDrawer = this.props.displayNotificationDrawer;
-    const hideDrawer = this.props.hideNotificationDrawer;
-    const LoginStatus = () => {
-      if (currentUser.isLoggedIn) {
-        return (
-          <BodySectionWithMarginBottom title="Course List">
-            <CourseList listCourses={this.state.listCourses}/>
-          </BodySectionWithMarginBottom>
-        )
-      } else {
-        return (
-          <BodySectionWithMarginBottom title="Log in to continue">
-            <Login logIn={this.logIn}/>
-          </BodySectionWithMarginBottom>
-        )
-    }
-    
-  }
-  return (
-    <AppContext.Provider value={{currentUser, logOut}}>
-      <Notifications displayDrawer={this.props.displayDrawer} showDrawer={showDrawer} hideDrawer={hideDrawer}
-      listNotifications={this.state.listNotifications} markNotificationAsRead={this.markNotificationAsRead}/>
-      <Header/>
-      <div className={css(styles.AppBody)}>
-        {LoginStatus()}
-        <BodySection title="News from the School">
-          <p>
-            News around the school!
-            News around the school!
-            News around the school!
-            News around the school!
-            News around the school!
-            News around the school!
-            News around the school!
-            News around the school!
-          </p>
-        </BodySection>
-      </div>
-      <Footer />
-    </AppContext.Provider>
-  );
+  render() {
+    const { user, logOut, listNotifications } = this.state;
+
+    const {
+      isLoggedIn,
+      displayDrawer,
+      displayNotificationDrawer,
+      hideNotificationDrawer,
+    } = this.props;
+
+    const value = { user, logOut };
+
+    return (
+      <AppContext.Provider value={value}>
+        <Notifications
+          listNotifications={listNotifications}
+          displayDrawer={displayDrawer}
+          handleDisplayDrawer={displayNotificationDrawer}
+          handleHideDrawer={hideNotificationDrawer}
+          markNotificationAsRead={this.markNotificationAsRead}
+        />
+        <div className={css(styles.container)}>
+          <div className={css(styles.app)}>
+            <Header />
+          </div>
+          <div className={css(styles.appBody)}>
+            {!isLoggedIn ? (
+              <BodySectionWithMarginBottom title="Log in to continue">
+                <Login logIn={this.logIn} />
+              </BodySectionWithMarginBottom>
+            ) : (
+              <BodySectionWithMarginBottom title="Course list">
+                <CourseList listCourses={listCourses} />
+              </BodySectionWithMarginBottom>
+            )}
+          </div>
+          <BodySection title="News from the School">
+            <p>
+              Lorem Ipsum is simply dummy text of the printing and typesetting
+              industry. Lorem Ipsum has been the industry's standard dummy text
+              ever since the 1500s, when an unknown printer took a galley of
+              type and scrambled it to make a type specimen book. It has
+              survived not only five centuries, but also the leap into
+              electronic typesetting, remaining essentially unchanged. It was
+              popularised in the 1960s with the release of Letraset sheets
+              containing Lorem Ipsum passages, and more recently with desktop
+              publishing software like Aldus PageMaker including versions of
+              Lorem Ipsum.
+            </p>
+          </BodySection>
+
+          <div className={css(styles.footer)}>
+            <Footer />
+          </div>
+        </div>
+      </AppContext.Provider>
+    );
   }
 }
+
+App.defaultProps = {
+  isLoggedIn: false,
+  displayDrawer: false,
+  displayNotificationDrawer: () => {},
+  hideNotificationDrawer: () => {},
+};
+
+App.propTypes = {
+  isLoggedIn: PropTypes.bool,
+  displayDrawer: PropTypes.bool,
+  displayNotificationDrawer: PropTypes.func,
+  hideNotificationDrawer: PropTypes.func,
+};
+
+const cssVars = {
+  mainColor: "#e01d3f",
+};
+
+const screenSize = {
+  small: "@media screen and (max-width: 900px)",
+};
+
+const styles = StyleSheet.create({
+  container: {
+    width: "calc(100% - 16px)",
+    marginLeft: "8px",
+    marginRight: "8px",
+  },
+
+  app: {
+    borderBottom: `3px solid ${cssVars.mainColor}`,
+  },
+
+  appBody: {
+    display: "flex",
+    justifyContent: "center",
+  },
+
+  footer: {
+    borderTop: `3px solid ${cssVars.mainColor}`,
+    width: "100%",
+    display: "flex",
+    justifyContent: "center",
+    textAlign: "center",
+    position: "fixed",
+    paddingBottom: "10px",
+    bottom: 0,
+    fontStyle: "italic",
+    [screenSize.small]: {
+      position: "static",
+    },
+  },
+});
 
 export const mapStateToProps = (state) => {
-  return { 
-    isLoggedIn: state.get("isUserLoggedIn"),
-    displayDrawer: state.get("isNotificationDrawerVisible") 
-  }
-}
-
-export const mapDispatchToProps = (dispatch) => {
   return {
-    displayNotificationDrawer: () => dispatch(displayNotificationDrawer()),
-    hideNotificationDrawer: () => dispatch(hideNotificationDrawer())
-  }
-}
-export default connect(mapStateToProps, mapDispatchToProps)(App)
-// export default App
+    isLoggedIn: state.get("isUserLoggedIn"),
+    displayDrawer: state.get("isNotificationDrawerVisible"),
+  };
+};
+
+const mapDispatchToProps = {
+  displayNotificationDrawer,
+  hideNotificationDrawer,
+};
+
+// export default App;
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

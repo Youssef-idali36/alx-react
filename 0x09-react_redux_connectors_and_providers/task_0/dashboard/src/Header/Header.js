@@ -1,56 +1,62 @@
-import React, {useContext} from 'react';
-import { StyleSheet, css } from 'aphrodite';
-import logo from '../assets/hbnblogo.jpg';
-import { AppContext } from '../App/AppContext';
+import React, { Component } from "react";
+import holberton_logo from "../assets/holberton_logo.jpeg";
+import { StyleSheet, css } from "aphrodite";
+import AppContext from "../App/AppContext";
 
+class Header extends Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    const { user, logOut } = this.context;
+
+    return (
+      <div className={css(styles.header)}>
+        <img src={holberton_logo} className={css(styles.headerImg)} />
+        <h1>School dashboard</h1>
+
+        {user.isLoggedIn && (
+          <p id="logoutSection" className={css(styles.logoutSection)}>
+            Welcome <b>{`${user.email} `}</b>
+            <span onClick={logOut} className={css(styles.logoutSectionSpan)}>
+              (logout)
+            </span>
+          </p>
+        )}
+      </div>
+    );
+  }
+}
+
+const cssVars = {
+  mainColor: "#e01d3f",
+};
 
 const styles = StyleSheet.create({
   header: {
     display: "flex",
     alignItems: "center",
-    borderBottom: "4px solid #E0354B",
-    marginBottom: 60
-  },
-  
-  img: {
-    width: 160,
-    height: 160
-  },
-  
-  heading: {
-    color: "#E0354B"
+    color: cssVars.mainColor,
+    fontSize: "20px",
   },
 
-  logOut: {
+  headerImg: {
+    width: "200px",
+  },
+  logoutSection: {
+    color: "black",
+    position: "absolute",
+    right: 0,
+    paddingRight: "20px",
+    alignSelf: "flex-end",
+  },
+  logoutSectionSpan: {
     fontStyle: "italic",
-    textDecoration: "underline",
-    cursor: "pointer"
-  }
+    cursor: "pointer",
+  },
+});
 
-})
+Header.contextType = AppContext;
 
-export default class Header extends React.Component {
-  render() {
-    const data = this.context
-    const email = data.currentUser.email
-    const displayText = () => {
-      if (data.currentUser.isLoggedIn){
-        return (
-        <section id="logoutSection">Welcome {email} 
-          <a  className={css(styles.logOut)} onClick={data.logOut}> (logout)</a>
-        </section>
-        )
-      }
-    }
-    return (
-      <>
-      <div className={css(styles.header)}>
-        <img className={css(styles.img)} src={logo} alt="logo"/>
-        <h1 className={css(styles.heading)}>School dashboard</h1>
-      </div>
-      {displayText()}
-      </>
-    )
-  }
-}
-Header.contextType = AppContext
+export default Header;

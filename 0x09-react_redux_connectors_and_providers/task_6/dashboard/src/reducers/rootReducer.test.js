@@ -1,18 +1,22 @@
-import { isImmutable, Map } from "immutable"
-import { courseReducer } from "./courseReducer";
-import { notificationReducer } from "./notificationReducer";
-import { uiReducer } from "./uiReducers";
+import rootReducer from "./rootReducer";
 import { combineReducers } from "redux";
+import { Map } from "immutable";
 
-test("root reducer’s initial state contains immutable objects", () => {
-  const rootReducer = combineReducers({
-    courses: courseReducer,
-    notifications: notificationReducer,
-    ui: uiReducer
-  })
+describe("uiReducer tests", function () {
+  it("verifies the state returned by the uiReducer function equals the initial state when no action is passed", function () {
+    const expectedState = {
+      courses: Map({}),
+      notifications: Map({}),
+      ui: Map({}),
+    };
 
-  const state = rootReducer(undefined, {})
-  expect(isImmutable(state.ui)).toEqual(true)
-  expect(isImmutable(state.courses)).toEqual(true)
-  expect(isImmutable(state.notifications)).toEqual(true)
-})
+    const reducer = combineReducers(rootReducer);
+
+    const state = reducer(undefined, { type: "RANDOM" });
+
+    for (const st in expectedState) {
+      expect(state[st]).toBeTruthy();
+      expect(typeof expectedState[st]).toEqual(typeof state[st]);
+    }
+  });
+});

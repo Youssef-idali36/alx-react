@@ -1,10 +1,21 @@
-import { courseReducer } from "./courseReducer";
-import { notificationReducer } from "./notificationReducer";
-import { uiReducer } from "./uiReducers";
-import { combineReducers } from "redux";
+import courseReducer, { initialCourseState } from "./courseReducer";
+import notificationReducer, {
+  initialNotificationState,
+} from "./notificationReducer";
+import uiReducer, { initialUiState } from "./uiReducer";
 
-export const rootReducer = combineReducers({
+import { Map } from "immutable";
+
+export const initialState = {
+  courses: Map(initialCourseState),
+  notifications: Map(initialNotificationState),
+  ui: Map(initialUiState),
+};
+
+const rootReducer = {
   courses: courseReducer,
   notifications: notificationReducer,
-  ui: uiReducer
-})
+  ui: uiReducer,
+};
+
+export default rootReducer;

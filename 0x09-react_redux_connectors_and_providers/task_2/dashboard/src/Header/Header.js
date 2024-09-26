@@ -1,84 +1,87 @@
-import React, {useContext} from 'react';
-import { StyleSheet, css } from 'aphrodite';
-import logo from '../assets/hbnblogo.jpg';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { logout } from '../actions/uiActionCreators';
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import { logout } from "../actions/uiActionCreators";
+import PropTypes from "prop-types";
+import { StyleSheet, css } from "aphrodite";
+import AppContext from "../App/AppContext";
+import holberton_logo from "../assets/holberton_logo.jpeg";
 
+export class Header extends Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    const { user, logout } = this.props;
+
+    return (
+      <div className={css(styles.header)}>
+        <img src={holberton_logo} className={css(styles.headerImg)} />
+        <h1>School dashboard</h1>
+
+        {user && (
+          <p id="logoutSection" className={css(styles.logoutSection)}>
+            Welcome <b>{`${user.email} `}</b>
+            <span onClick={logout} className={css(styles.logoutSectionSpan)}>
+              (logout)
+            </span>
+          </p>
+        )}
+      </div>
+    );
+  }
+}
+
+const cssVars = {
+  mainColor: "#e01d3f",
+};
 
 const styles = StyleSheet.create({
   header: {
     display: "flex",
     alignItems: "center",
-    borderBottom: "4px solid #E0354B",
-    marginBottom: 60
-  },
-  
-  img: {
-    width: 160,
-    height: 160
-  },
-  
-  heading: {
-    color: "#E0354B"
+    color: cssVars.mainColor,
+    fontSize: "20px",
   },
 
-  logOut: {
+  headerImg: {
+    width: "200px",
+  },
+  logoutSection: {
+    color: "black",
+    position: "absolute",
+    right: 0,
+    paddingRight: "20px",
+    alignSelf: "flex-end",
+  },
+  logoutSectionSpan: {
     fontStyle: "italic",
-    textDecoration: "underline",
-    cursor: "pointer"
-  }
+    cursor: "pointer",
+  },
+});
 
-})
-
-export class Header extends React.Component {
-  render() {
-    const {user} = this.props
-    const displayText = () => {
-      if (this.props.isLoggedIn){
-        return (
-        <section id="logoutSection">Welcome {user.email} 
-          <a  className={css(styles.logOut)} onClick={this.props.logOut}> (logout)</a>
-        </section>
-        )
-      }
-    }
-    return (
-      <>
-      <div className={css(styles.header)}>
-        <img className={css(styles.img)} src={logo} alt="logo"/>
-        <h1 className={css(styles.heading)}>School dashboard</h1>
-      </div>
-      {displayText()}
-      </>
-    )
-  }
-}
-
-const mapStateToProps = (state) => {
-  const user = state.get("user")
-  const isLoggedIn = state.get("isUserLoggedIn")
-  return { user, isLoggedIn }
-}
-
-const mapDispatchToProps = (dispatch) => {
-  return {logOut: () => dispatch(logout())}
-}
-
-Header.propTypes = {
-  user: PropTypes.shape({
-    email: PropTypes.string,
-    password: PropTypes.string,
-  }),
-  isLoggedIn: PropTypes.bool
-}
+Header.contextType = AppContext;
 
 Header.defaultProps = {
-    user: {
-      email: "",
-      password: ""
-    },
-    isLoggedIn: false
-}
+  user: null,
+  logout: () => {},
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(Header)
+Header.propTypes = {
+  user: PropTypes.object,
+  logout: PropTypes.func,
+};
+
+const mapStateToProps = (state) => {
+  return {
+    user: state.get("user"),
+  };
+};
+
+const mapDispatchToProps = {
+  logout,
+};
+
+// export default Header;
+
+export default connect(mapStateToProps, mapDispatchToProps)(Header);

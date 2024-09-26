@@ -1,57 +1,31 @@
-import React from 'react';
-import { StyleSheet, css} from 'aphrodite';
-import { getFullYear, getFooterCopy } from '../utils/utils'
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
+import React from "react";
+import { connect } from "react-redux";
+import { getFullYear, getFooterCopy } from "../utils/utils";
+import PropTypes from "prop-types";
 
-
-const styles = StyleSheet.create({
-  AppFooter: {
-    borderTop: "4px solid #E0354B",
-    width: '99%',
-    '@media (max-width: 900px)': {
-      position: "relative",
-      width: "100%",
-      marginTop: 60
-    }
-  },
-  
-  AppFooter_p: {
-    fontStyle: "italic",
-    textAlign: "center"
-  }
-})
-
-
-export function Footer(props) {
-  const footerText = (props.isLoggedIn) ? <a href="#">Contact us</a> : `Copyright ${getFullYear()} - ${getFooterCopy(false)}`
+export function Footer({ user }) {
   return (
-    <div className={css(styles.AppFooter)}>
-      <p className={css(styles.AppFooter_p)}>{footerText}</p>
+    <div className="footer">
+      <p>
+        Copyright {getFullYear()} - {getFooterCopy(true)}
+      </p>
+      {user && <a href="#">Contact us</a>}
     </div>
-    )
-  }
-
-const mapStateToProps = (state) => {
-  const user = state.ui.get("user")
-  const isLoggedIn = state.ui.get("isUserLoggedIn")
-  return { user, isLoggedIn }
-}
-
-Footer.propTypes = {
-  user: PropTypes.shape({
-    email: PropTypes.string,
-    password: PropTypes.string
-  }),
-  isLoggedIn: PropTypes.bool
+  );
 }
 
 Footer.defaultProps = {
-    user: {
-      email: "",
-      password: ""
-    },
-    isLoggedIn: false
-}
+  user: null,
+};
 
-export default connect(mapStateToProps)(Footer)
+Footer.propTypes = {
+  user: PropTypes.object,
+};
+
+const mapStateToProps = (state) => {
+  return {
+    user: state.ui.get("user"),
+  };
+};
+
+export default connect(mapStateToProps, null)(Footer);

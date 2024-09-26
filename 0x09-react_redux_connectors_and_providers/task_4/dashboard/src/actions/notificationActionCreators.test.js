@@ -1,12 +1,34 @@
-import { markAsRead, setNotificationFilter } from './notificationActionCreators';
-import { MARK_AS_READ, SET_TYPE_FILTER, NotificationTypeFilters } from './notificationActionTypes'
+import {
+  MARK_AS_READ,
+  SET_TYPE_FILTER,
+  NotificationTypeFilters,
+} from "./notificationActionTypes";
 
-test('markAsRead()', ()=>{
-  const action = markAsRead(1)
-  expect(action).toEqual({ type: MARK_AS_READ, index: 1 })
-})
+import {
+  markAsAread,
+  setNotificationFilter,
+} from "./notificationActionCreators";
 
-test('setNotificationFilter()', ()=>{
-  const action = setNotificationFilter(NotificationTypeFilters.DEFAULT)
-  expect(action).toEqual({ type: SET_TYPE_FILTER, filter:"DEFAULT" })
-})
+describe("action creators tests", function () {
+  it("returns correct action for markAsRead", function () {
+    const expectedReturn = {
+      type: MARK_AS_READ,
+      index: 1,
+    };
+
+    const result = markAsAread(1);
+
+    expect(result).toEqual(expectedReturn);
+  });
+
+  it("returns correct action for setNotificationFilter", function () {
+    const expectedReturn = {
+      type: SET_TYPE_FILTER,
+      filter: "DEFAULT",
+    };
+
+    const result = setNotificationFilter(NotificationTypeFilters.DEFAULT);
+
+    expect(result).toEqual(expectedReturn);
+  });
+});

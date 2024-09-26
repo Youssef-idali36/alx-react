@@ -1,1 +1,9 @@
-export const getListCourses = (state) => state.courses.valueSeq()
+export const getListCourses = (state) => {
+  const courses = state.courses;
+
+  if (courses) {
+    return courses.valueSeq();
+  }
+
+  return courses;
+};

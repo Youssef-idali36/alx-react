@@ -1,51 +1,62 @@
-import React from "react";
-import { Notifications } from './Notifications'
-import { fetchNotifications, markAsRead, setNotificationFilter } from '../actions/notificationActionCreators';
-import { connect } from "react-redux"
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import {
+  fetchNotifications,
+  markAsAread,
+  setNotificationFilter,
+} from "../actions/notificationActionCreators";
 import { getUnreadNotificationsByType } from "../selectors/notificationSelector";
-import PropTypes from 'prop-types';
+import Notifications from "./Notifications";
+import PropTypes from "prop-types";
 
-
-export class NotifContainer extends React.Component {
-  static propTypes = {
-    messages: PropTypes.arrayOf(PropTypes.object),
-    setNotificationFilter: PropTypes.func,
-    displayDrawer: PropTypes.bool,
-    showDrawer: PropTypes.func,
-    hideDrawer: PropTypes.func,
-    markNotificationAsRead: PropTypes.func,
-    fetchNotifications: PropTypes.func
-  }
-
-  static defaultProps = {
-      messages: [],
-      displayDrawer: false,
-      showDrawer: () => {},
-      hideDrawer: () => {},
-      setNotificationFilter: () => {},
-      markNotificationAsRead: () => {},
-      fetchNotifications: () => {}
+export class NotificationsContainer extends Component {
+  constructor(props) {
+    super(props);
   }
 
   componentDidMount() {
-    this.props.fetchNotifications()
+    this.props.fetchNotifications();
   }
 
-  render () {
-    return <Notifications {...this.props}/>
+  render() {
+    return <Notifications {...this.props}></Notifications>;
   }
 }
+
+NotificationsContainer.defaultProps = {
+  displayDrawer: false,
+  listNotifications: null,
+  handleDisplayDrawer: () => {},
+  handleHideDrawer: () => {},
+  markNotificationAsRead: () => {},
+  fetchNotifications: () => {},
+  setNotificationFilter: () => {},
+};
+
+NotificationsContainer.propTypes = {
+  displayDrawer: PropTypes.bool,
+  listNotifications: PropTypes.object,
+  handleDisplayDrawer: PropTypes.func,
+  handleHideDrawer: PropTypes.func,
+  markNotificationAsRead: PropTypes.func,
+  setNotificationFilter: PropTypes.func,
+};
 
 const mapStateToProps = (state) => {
-  return { messages: getUnreadNotificationsByType(state).toJS() }
-}
+  const unreadNotificationsByType = getUnreadNotificationsByType(state);
 
-const mapDispatchToProps = (dispatch) => {
   return {
-    fetchNotifications: () => dispatch(fetchNotifications()),
-    markNotificationAsRead: (index) => dispatch(markAsRead(index)),
-    setNotificationFilter: (filter) => dispatch(setNotificationFilter(filter))
-  }
-}
+    listNotifications: unreadNotificationsByType,
+  };
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(NotifContainer)
+const mapDispatchToProps = {
+  fetchNotifications,
+  markNotificationAsRead: markAsAread,
+  setNotificationFilter,
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(NotificationsContainer);

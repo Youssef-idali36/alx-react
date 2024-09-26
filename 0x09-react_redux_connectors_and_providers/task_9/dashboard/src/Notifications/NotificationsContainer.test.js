@@ -1,10 +1,17 @@
-import { NotifContainer } from "./NotificationsContainer";
-import { shallow } from 'enzyme';
-import React from 'react';
+import React from "react";
+import { NotificationsContainer } from "./NotificationsContainer";
+import { shallow } from "enzyme";
 
+describe("<NotificationsContainer />", () => {
+  it("verify that the function fetchNotifications is called when the component is mounted", () => {
+    const fetchNotifications = jest.fn();
 
-it("calls fetctNotifications actioncreator when component is mounted", ()=>{
-    const fetchNotifications = jest.fn()
-    const wrapper = shallow(<NotifContainer fetchNotifications={fetchNotifications}/>);
-    expect(fetchNotifications).toHaveBeenCalled()
-})
+    const wrapper = shallow(
+      <NotificationsContainer fetchNotifications={fetchNotifications} />
+    );
+
+    expect(fetchNotifications).toHaveBeenCalled();
+
+    jest.restoreAllMocks();
+  });
+});
